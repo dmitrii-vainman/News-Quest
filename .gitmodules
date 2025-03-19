@@ -1,0 +1,3 @@
+[submodule "external_libs/crossword-puzzle-maker"]
+	path = external_libs/crossword-puzzle-maker
+	url = https://github.com/papauschek/crossword-puzzle-maker.git

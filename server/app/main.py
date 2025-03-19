@@ -5,6 +5,7 @@ app = FastAPI()
 
 app.include_router(news.router)
 app.include_router(puzzle.router)
+app.include_router(crossword.router)
 
 @app.get("/")
 def root():
