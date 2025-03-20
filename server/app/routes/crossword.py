@@ -1,11 +1,12 @@
-from fastapi import APIRouter
-from app.puzzle.generator import CrosswordGenerator
 import sys
 from pydantic import BaseModel
 from typing import Dict
+from fastapi import APIRouter
+from app.puzzle.generator import CrosswordGenerator
+
 
 # Make sure the path to crossword-puzzle-maker is correct
-sys.path.append("external_libs/crossword-puzzle-maker")
+sys.path.append("~/mydir/final/external_libs/crossword-puzzle-maker")
 
 from crossword import Crossword  # Import from the library
 
