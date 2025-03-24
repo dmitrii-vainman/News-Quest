@@ -1,4 +1,4 @@
-News-Quest
+
 News-Quest is a project that converts the latest news into crossword puzzles. It sources news articles from platforms like Reddit and Hacker News, processes them into clues, and generates puzzles for users to solve. This project demonstrates a variety of skills learned during a one-year bootcamp, including API integration, puzzle generation, and deployment.
 
 Project Scope:
