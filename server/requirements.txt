@@ -2,3 +2,4 @@ fastapi
 requests
 sqlite3
 uvicorn
+python-dotenv
