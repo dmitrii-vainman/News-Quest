@@ -17,14 +17,6 @@
 4. **Backend**:
    - The backend uses FastAPI to serve the API for fetching news articles and serving crossword puzzles.
 
-## Folder Structure
-
-├── client/ # Frontend application built with React │ ├── README.md │ ├── package.json │ ├── public/ │ └── src/ ├── server/ # Backend API built with FastAPI │ ├── app/ │ ├── db/ │ ├── requirements.txt │ └── venv/ ├── db/ # SQLite database storing crossword data and user progress
-
-shell
-Kopieren
-Bearbeiten
-
 ## How to Run
 
 ### Backend (FastAPI)
