@@ -1,0 +1,33 @@
+.crossword-page-container {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .crossword-page-header {
+    margin-bottom: 20px;
+  }
+  
+  .crossword-placeholder {
+    background-color: #f1f1f1;
+    border: 2px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    min-height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .solve-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .solve-button:hover {
+    background-color: #45a049;
+  }
+  

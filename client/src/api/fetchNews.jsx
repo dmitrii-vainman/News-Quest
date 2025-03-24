@@ -1,11 +1,11 @@
 import axios from "axios";
 
-export async function fetchNews() {
+export const fetchHeadlines = async () => {
   try {
-    const response = await axios.get("http://127.0.0.1:8000/news/");
-    return response.data;
+    const response = await axios.get("http://localhost:8000/headlines"); // Your backend API URL
+    return response.data.headlines;  // Assuming your backend returns { headlines: [...] }
   } catch (error) {
-    console.error("Error fetching news:", error);
+    console.error("Error fetching headlines:", error);
     return [];
   }
-}
+};

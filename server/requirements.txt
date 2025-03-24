@@ -1,0 +1,4 @@
+fastapi
+requests
+sqlite3
+uvicorn
