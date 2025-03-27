@@ -1,28 +1,15 @@
 # app/routes/reddit.py
 from fastapi import APIRouter
-from app.routes.utils.fetch_data import fetch_from_api  # Correct import
+from app.routes.utils.fetch_data import fetch_reddit_top_posts  # Import the correct function
 
 router = APIRouter()
 
-@router.get("/headlines/reddit")
-async def get_reddit_headlines(limit: int = 5):
-    headers = {
-        'User-Agent': 'News-Quest/0.1 by YourUsername'
-    }
-    url = 'https://www.reddit.com/top.json'
-    params = {'limit': limit}
-
-    response = requests.get(url, headers=headers, params=params)
+@router.get("/headlines")
+async def get_reddit_headlines(limit: int = 10):
+    # Fetch the headlines using the function from fetch_data.py
+    headlines = fetch_reddit_top_posts(limit)
     
-    if response.status_code == 200:
-        posts = response.json()['data']['children']
-        headlines = []
-        for post in posts:
-            headline = {
-                'title': post['data']['title'],
-                'url': post['data']['url']
-            }
-            headlines.append(headline)
+    if isinstance(headlines, list):  # Check if the response is a list (successful fetch)
         return {"headlines": headlines}
     else:
-        return {"error": "Failed to fetch posts", "status_code": response.status_code}
+        return {"error": "Failed to fetch posts", "status_code": headlines.get('status_code', 'Unknown')}

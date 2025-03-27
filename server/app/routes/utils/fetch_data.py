@@ -1,21 +1,40 @@
-# /app/routes/utils/fetch_data.py
+import os
 import requests
+from dotenv import load_dotenv
 
-def fetch_from_api(url: str):
+# Load environment variables from .env file
+load_dotenv()
+
+# Get API credentials from the .env file
+newsapi_key = os.getenv('newsapi_key')
+
+# Function to fetch top stories from Hacker News
+def fetch_hackernews_top_stories(limit=10):
+    url = "https://hacker-news.firebaseio.com/v0/topstories.json"
     response = requests.get(url)
+    
     if response.status_code == 200:
-        return response.json()
+        story_ids = response.json()[:limit]
+        headlines = []
+        for story_id in story_ids:
+            story_url = f"https://hacker-news.firebaseio.com/v0/item/{story_id}.json"
+            story_response = requests.get(story_url)
+            if story_response.status_code == 200:
+                story = story_response.json()
+                headlines.append({"title": story.get("title"), "url": story.get("url")})
+        return headlines
     else:
-        print(f"Error fetching data from {url}. Status code: {response.status_code}")
+        print(f"Error fetching Hacker News stories. Status code: {response.status_code}")
         return []
 
-def fetch_reddit_top_posts(limit=5):
+# Function to fetch top posts from r/worldnews (Reddit)
+def fetch_reddit_top_posts(limit=10):
     headers = {
-        'User-Agent': 'News-Quest/0.1 by YourUsername'  # Reddit requires a user-agent header
+        'User-Agent': 'News-Quest/0.1 by Dmitrii'
     }
 
-    url = 'https://www.reddit.com/top.json'
-    params = {'limit': limit}
+    url = "https://www.reddit.com/r/worldnews/top.json"
+    params = {'limit': limit, 't': 'day'}  # Fetches top posts of the day
 
     response = requests.get(url, headers=headers, params=params)
 
@@ -30,4 +49,29 @@ def fetch_reddit_top_posts(limit=5):
             headlines.append(headline)
         return headlines
     else:
-        return {"error": "Failed to fetch posts", "status_code": response.status_code}
+        print(f"Error fetching Reddit posts. Status code: {response.status_code}")
+        return []
+
+# Function to fetch top headlines from NewsAPI
+def fetch_newsapi_headlines(limit=10):
+    if not newsapi_key:
+        print("Error: NewsAPI key is missing.")
+        return []
+
+    url = "https://newsapi.org/v2/top-headlines"
+    params = {
+        "apiKey": newsapi_key,
+        "language": "en",
+        "pageSize": limit,
+        "sources": "abc-news"  # Change this if you want different sources
+    }
+
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        articles = response.json().get('articles', [])
+        headlines = [{"title": article["title"], "url": article["url"]} for article in articles]
+        return headlines
+    else:
+        print(f"Error fetching NewsAPI headlines. Status code: {response.status_code}")
+        return []
