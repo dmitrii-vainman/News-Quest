@@ -1,95 +1,149 @@
 import sqlite3
 import requests
+import logging
+import os
 from fastapi import FastAPI
 from app.routes.hackernews import router as hackernews_router
 from app.routes.reddit import router as reddit_router
+from dotenv import load_dotenv
 
-
-
-
+# Initialize FastAPI app
 app = FastAPI()
-
+load_dotenv()
 # Include routes for both HackerNews and Reddit
 app.include_router(hackernews_router, prefix="/hackernews", tags=["HackerNews"])
 app.include_router(reddit_router, prefix="/reddit", tags=["Reddit"])
 
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Function to fetch top story IDs from Hacker News
+# Function to fetch and save top 10 Hacker News headlines
+def fetch_and_save_hackernews_headlines():
+    top_story_ids = fetch_top_stories()  # Get top 10 story IDs
+    headlines = []
+
+    for story_id in top_story_ids:
+        story = fetch_story_details(story_id)
+        if story:
+            headlines.append(story)
+
+    if headlines:
+        save_headlines_to_db(headlines, "HackerNews")
+    return headlines
+
+# Fetches top 10 story IDs from Hacker News
 def fetch_top_stories():
     url = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"
     response = requests.get(url)
     if response.status_code == 200:
-        return response.json()
+        return response.json()[:10]  # Get top 10
     else:
-        print(f"Failed to fetch top stories. Status code: {response.status_code}")
+        logger.error(f"Failed to fetch top stories. Status code: {response.status_code}")
         return []
 
-# Function to fetch the story details (headlines)
+# Fetches details of a single story from Hacker News
 def fetch_story_details(story_id):
     url = f"https://hacker-news.firebaseio.com/v0/item/{story_id}.json?print=pretty"
     response = requests.get(url)
     if response.status_code == 200:
-        return response.json()
+        story = response.json()
+        return {"title": story.get("title")}
     else:
-        print(f"Failed to fetch story details for {story_id}. Status code: {response.status_code}")
+        logger.error(f"Failed to fetch story details for {story_id}. Status code: {response.status_code}")
         return None
 
-# Function to fetch and save headlines to the database (only first 10 headlines)
-def fetch_and_save_headlines():
-    top_story_ids = fetch_top_stories()[:10]  # Limit to top 10 stories
-    headlines = []
-    for story_id in top_story_ids:
-        story = fetch_story_details(story_id)
-        if story:
-            headlines.append({
-                "title": story.get("title")
-            })
+newsapi_key = os.getenv('newsapi_key')
 
-    return headlines
+def fetch_newsapi_headlines(limit=10):
+    api_key = newsapi_key 
+    url = "https://newsapi.org/v2/everything"
+    params = {
+        "q": "global events",  # You can refine this query
+        "sortBy": "publishedAt",  # Sort by latest news
+        "language": "en",  # English news (optional)
+        "pageSize": 10,
+        "apiKey": api_key
+}
 
 
-# Function to create the database
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        articles = response.json().get("articles", [])
+        headlines = [{"title": article["title"]} for article in articles]
+        return headlines
+    else:
+        print(f"Failed to fetch NewsAPI headlines. Status code: {response.status_code}")
+        return []
+
+
+# Fetch and save Reddit headlines from r/worldnews
+def fetch_and_save_reddit_headlines(limit=10):
+    url = "https://www.reddit.com/r/worldnews/top.json"
+    params = {'limit': limit, 't': 'day'}
+    headers = {'User-Agent': 'News-Quest/0.1 by Dmitrii'}
+
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code == 200:
+        posts = response.json().get('data', {}).get('children', [])
+        headlines = [{"title": post['data']['title']} for post in posts]
+
+        if headlines:
+            save_headlines_to_db(headlines, "Reddit")
+        return headlines
+    else:
+        logger.error(f"Failed to fetch Reddit posts. Status code: {response.status_code}")
+        return []
+
+# Database initialization
 def create_db():
-    conn = sqlite3.connect("app/db/news.db")  # Relative path
-    cursor = conn.cursor()
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS headlines (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        source TEXT NOT NULL
-    )
-    ''')
-    conn.commit()
-    conn.close()
+    with sqlite3.connect("app/db/news.db") as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS headlines (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            source TEXT NOT NULL
+        )
+        ''')
+        conn.commit()
 
-# Make sure the database and table are created when the app starts
+# Save headlines to SQLite
+def save_headlines_to_db(headlines, source):
+    try:
+        with sqlite3.connect("app/db/news.db") as conn:
+            cursor = conn.cursor()
+            logger.info(f"Saving {len(headlines)} headlines from {source} to database.")
+            cursor.executemany("INSERT INTO headlines (title, source) VALUES (?, ?)", 
+                               [(headline['title'], source) for headline in headlines])
+            conn.commit()
+            logger.info("Commit successful!")
+    except Exception as e:
+        logger.error(f"Error during database insertion: {e}")
+
+# Ensure database is created on startup
 create_db()
 
-def save_headlines_to_db(headlines, source):
-    conn = sqlite3.connect("app/db/news.db")  # Relative path
-    cursor = conn.cursor()
-
-    try:
-        print(f"Saving {len(headlines)} headlines to the database...")  # Add a print statement here
-        for headline in headlines:
-            print(f"Inserting headline: {headline['title']}")  # Check individual headline
-            cursor.execute("INSERT INTO headlines (title, source) VALUES (?, ?)", 
-               (headline['title'], source))
-        
-        conn.commit()  # Commit changes
-        print("Commit successful!")  # Print confirmation after commit
-    except Exception as e:
-        print(f"Error during database insertion: {e}")  # Catch any exceptions during insertion
-    finally:
-        conn.close()  # Ensure the connection is always closed
-
+# API Route: Fetch and return top 10 Hacker News headlines
 @app.get("/headlines/hackernews")
 def read_hackernews_headlines():
-    headlines = fetch_and_save_headlines()  # Fetches headlines
-    print(f"Fetched {len(headlines)} headlines from HackerNews.")  # Add a print statement here
-    save_headlines_to_db(headlines, "HackerNews")  # Save to DB
-    
-    # Modify output to show only titles
-    headlines_output = [{"title": headline["title"]} for headline in headlines]
-    return {"headlines": headlines_output}
+    headlines = fetch_and_save_hackernews_headlines()
+    if not headlines:
+        return {"error": "Failed to fetch HackerNews headlines"}
+    return {"headlines": [{"title": headline["title"]} for headline in headlines]}
 
+# API Route: Fetch and return top 10 Reddit r/worldnews headlines
+@app.get("/headlines/reddit")
+def read_reddit_headlines():
+    headlines = fetch_and_save_reddit_headlines()
+    if not headlines:
+        return {"error": "Failed to fetch Reddit headlines"}
+    return {"headlines": [{"title": headline["title"]} for headline in headlines]}
+
+@app.get("/headlines/newsapi")
+def read_newsapi_headlines():
+    headlines = fetch_newsapi_headlines()
+    print(f"Fetched {len(headlines)} headlines from NewsAPI.")  
+    save_headlines_to_db(headlines, "NewsAPI")  
+
+    return {"headlines": headlines}
