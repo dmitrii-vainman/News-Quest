@@ -54,24 +54,28 @@ def fetch_reddit_top_posts(limit=10):
 
 # Function to fetch top headlines from NewsAPI
 def fetch_newsapi_headlines(limit=10):
-    if not newsapi_key:
-        print("Error: NewsAPI key is missing.")
-        return []
-
-    url = "https://newsapi.org/v2/top-headlines"
+    api_key = newsapi_key 
+    url = "https://newsapi.org/v2/everything"
     params = {
-        "apiKey": newsapi_key,
-        "language": "en",
-        "pageSize": limit,
-        "sources": "abc-news"  # Change this if you want different sources
+        "q": "global events",  # Search for global events
+        "sortBy": "publishedAt",  # Sort by latest news
+        "language": "en",  # English news
+        "pageSize": limit,  # Limit to top headlines
+        "apiKey": api_key
     }
 
     response = requests.get(url, params=params)
-
+    
     if response.status_code == 200:
-        articles = response.json().get('articles', [])
-        headlines = [{"title": article["title"], "url": article["url"]} for article in articles]
+        articles = response.json().get("articles", [])
+        headlines = [
+            {
+                "title": article["title"],
+                "url": article["url"]
+            } 
+            for article in articles
+        ]
         return headlines
     else:
-        print(f"Error fetching NewsAPI headlines. Status code: {response.status_code}")
+        print(f"Failed to fetch NewsAPI headlines. Status code: {response.status_code}")
         return []
