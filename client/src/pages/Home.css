@@ -1,46 +1,115 @@
+/* Home.css */
 .home-page-container {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to right, #283c86, #45a247); /* Gradient background */
+    color: white;
+    padding: 20px;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background-color: #f4f4f9;
-    font-family: 'Arial', sans-serif;
-    color: #333;
+    justify-content: space-between;
   }
   
   .home-page-header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
   
-  .home-page-header h1 {
-    font-size: 2.5rem;
-    color: #2c3e50;
+  .main-title {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #ffcc00; /* Accent color */
   }
   
-  .home-page-header p {
+  .sub-title {
     font-size: 1.2rem;
-    color: #7f8c8d;
+    color: #d1d1d1;
   }
   
-  main {
+  .intro-section {
     text-align: center;
-    margin-top: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+  }
+  
+  .description-box {
+    margin-bottom: 30px;
+  }
+  
+  .description-box h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #ffcc00;
+  }
+  
+  .description-box p {
+    font-size: 1rem;
+    color: #f1f1f1;
+  }
+  
+  .sources-section h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #ffcc00;
+  }
+  
+  .source-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .source-list li {
+    font-size: 1.2rem;
+    color: #f1f1f1;
+    margin: 10px 0;
+  }
+  
+  .footer-section {
+    text-align: center;
+    margin-top: 30px;
   }
   
   .start-button {
-    background-color: #3498db;
-    color: white;
+    background-color: #ffcc00;
+    color: black;
     font-size: 1.2rem;
-    padding: 15px 30px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 5px;
+    border-radius: 30px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s ease;
   }
   
   .start-button:hover {
-    background-color: #2980b9;
+    background-color: #ff9e00;
+  }
+  
+  @media (max-width: 768px) {
+    .home-page-container {
+      padding: 15px;
+    }
+  
+    .main-title {
+      font-size: 2.5rem;
+    }
+  
+    .sub-title {
+      font-size: 1rem;
+    }
+  
+    .description-box h2 {
+      font-size: 1.5rem;
+    }
+  
+    .source-list li {
+      font-size: 1rem;
+    }
+  
+    .start-button {
+      font-size: 1rem;
+      padding: 10px 20px;
+    }
   }
   
