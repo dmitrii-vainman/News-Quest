@@ -2,15 +2,25 @@ import sqlite3
 import requests
 import logging
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from app.routes.hackernews import router as hackernews_router
 from app.routes.reddit import router as reddit_router
+from fastapi.responses import JSONResponse
+from app.puzzle.crossword import fetch_clues, generate_crossword
 from dotenv import load_dotenv
-
+from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 # Initialize FastAPI app
 app = FastAPI()
 load_dotenv()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Frontend address
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 
 # Include routes for both HackerNews and Reddit
 app.include_router(hackernews_router, prefix="/hackernews", tags=["HackerNews"])
@@ -50,7 +60,7 @@ def reset_headlines_table():
 import requests
 import time
 
-def fetch_newsapi_headlines(limit=8, fetch_limit=20):
+def fetch_newsapi_headlines(limit=12, fetch_limit=20):
     """
     Fetch headlines from NewsAPI and ensure we have exactly `limit` valid headlines.
     The `fetch_limit` determines how many articles to initially fetch (higher than the `limit`).
@@ -105,7 +115,7 @@ def fetch_top_stories():
     url = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"
     response = requests.get(url)
     if response.status_code == 200:
-        return response.json()[:8]  # Get top 10
+        return response.json()[:12]  # Get top 10
     else:
         logger.error(f"Failed to fetch top stories. Status code: {response.status_code}")
         return []
@@ -134,7 +144,7 @@ def fetch_story_details(story_id):
 
 
 def fetch_and_save_hackernews_headlines():
-    top_story_ids = fetch_top_stories()  # Get top 8 story IDs
+    top_story_ids = fetch_top_stories()  
     if not top_story_ids:
         logger.error("No top stories fetched from Hacker News.")
         return []
@@ -154,7 +164,7 @@ def fetch_and_save_hackernews_headlines():
 
 
 # Fetch and save Reddit headlines from r/worldnews
-def fetch_and_save_reddit_headlines(limit=8):
+def fetch_and_save_reddit_headlines(limit=12):
     url = "https://www.reddit.com/r/worldnews/top.json"
     params = {'limit': limit, 't': 'day'}
     headers = {'User-Agent': 'News-Quest/0.1 by Dmitrii'}
@@ -268,13 +278,6 @@ def read_all_headlines():
     all_headlines = fetch_and_save_all_headlines()
     return {"headlines": all_headlines}  # Returns a dictionary of headlines by source
 
-
-import sqlite3
-from fastapi import FastAPI
-from pydantic import BaseModel
-
-app = FastAPI()
-
 # Define a model for the clues and headlines
 class Clue(BaseModel):
     id: int
@@ -291,7 +294,7 @@ class Headline(BaseModel):
 
 # Function to fetch clues based on source
 def fetch_clues_and_headline(source: str):
-    conn = sqlite3.connect('../db/news.db')
+    conn = sqlite3.connect('app/db/news.db')
     cursor = conn.cursor()
 
     # Fetch the headline for the selected source (now including the URL)
@@ -319,7 +322,16 @@ def fetch_clues_and_headline(source: str):
     return {"headline": headline, "clues": clues}
 
 
+@app.get("/crossword/{source}")
+def get_crossword(source: str):
+    clues = fetch_clues(source)
+    if not clues:
+        return JSONResponse({"error": "No clues found for this source"}, status_code=404)
+    puzzle = generate_crossword(clues)
+    return puzzle
+
 # Endpoint to fetch the clues and headline data
 @app.get("/api/headline/{source}")
 def get_headline_and_clues(source: str):
     return fetch_clues_and_headline(source)
+

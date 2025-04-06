@@ -28,15 +28,17 @@
   
   .blank-field {
     width: 100%;  /* Take up full width */
-    height: 50vh; /* Large blank area */
+    height: 70vh; /* Large blank area */
     background-color: white;
-    border: 2px dashed #ccc;
-    margin-bottom: 20px;
-    display: flex;
+    border: 3px dashed #ccc;
+    margin: 10 10 10 20px;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
+    font-size: 26px;
     color: #888;
+    display: block;   /* Use CSS Grid */
+    grid-template-columns: repeat(1, 30px); /* 15 columns with each cell 50px wide */
+    grid-gap:1px; /* Add spacing between cells */
   }
   
   .clues-container {
@@ -53,14 +55,27 @@
   }
   
   .clue-item {
-    margin: 10px 0;
+    margin: 10px 10px;
     font-size: 18px;
     color: #333;
+  }
+  
+  .clue-id {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 10px;
+    color: #555;
+    background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent background */
+    padding: 2px;
+    border-radius: 4px;
+    font-weight: bold;
   }
   
   .clue-item strong {
     font-weight: bold;
     color: #0073e6;
+    margin-left: 10px;
   }
   
   .loading-message {
@@ -68,4 +83,73 @@
     font-size: 24px;
     color: #888;
   }
+  
+  .crossword-row {
+    display: flex;
+  }
+  
+  .crossword-cell {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    border: 2px solid #2c2727;
+    margin: 3.5px;
+    font-size: 25px;
+  }
+  
+  .crossword-cell.locked {
+    background-color: #463b3b; /* Gray background to indicate locked cells */
+    color: #363030;  /* Light color for the text */
+    border: 1px solid #ddd; /* Light border */
+  }
+  
+  .crossword-cell.locked:focus {
+    outline: none; /* Prevent outline when focusing on locked cells */
+  }
+  
+  /* New CSS for displaying Clue IDs in the crossword grid */
+  .crossword-cell-wrapper {
+    position: relative;
+  }
+  
+  .cell-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .clue-id-overlay {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 10px;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 2px;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  
+  .crossword-cell:focus {
+    outline: none;
+    box-shadow: 0 0 5px #0073e6; /* Blue glow on focus */
+  }
+  
+  @media (max-width: 1200px) {
+    .newsapi-container {
+      padding: 10px;
+    }
+  
+    .blank-field {
+      height: 70vh; /* Adjust grid height for smaller screens */
+    }
+  
+    .crossword-cell {
+      width: 50px;
+      height: 50px;
+      font-size: 20px; /* Smaller font size for smaller screens */
+    }
+  }
+  
   

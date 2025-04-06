@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './NewsAPI.css'; // Import the CSS file for this component
 
 const Reddit = () => {
   const [clues, setClues] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [clueWithHint, setClueWithHint] = useState(null);
+  const [gridData, setGridData] = useState(Array(15).fill().map(() => Array(15).fill(''))); // Initialize grid as 15x15 empty
 
   useEffect(() => {
     // Fetch clues from the backend when the component mounts
     axios
       .get('http://localhost:5000/clues?source=Reddit')
       .then((response) => {
+        console.log("Fetched clues:", response.data);
         setClues(response.data);
         setLoading(false);
       })
@@ -17,22 +21,135 @@ const Reddit = () => {
         console.error('Error fetching clues:', error);
         setLoading(false);
       });
+  
+    // Fetch the crossword puzzle (grid and placed words) from the backend
+    axios
+      .get('http://127.0.0.1:8000/crossword/Reddit')
+      .then((response) => {
+        console.log("Crossword Data:", response.data);
+        const crosswordGrid = response.data.grid;
+        const placedWords = response.data.words; // Get the placed words
+  
+        // Create a cleared grid: keep '.' for blocked cells; for others, start with empty strings
+        let clearedGrid = crosswordGrid.map(row =>
+          row.map(cell => (cell === '.' ? '.' : ''))
+        );
+  
+        // For each placed word, fill in the first letter of the word at its starting cell
+        placedWords.forEach((wordObj, idx) => {
+          const { x, y, word } = wordObj;
+          if (clearedGrid[x] && clearedGrid[x][y] !== undefined) {
+            clearedGrid[x][y] = word[0]; // Keep only the first letter
+            // Optionally, if you want to annotate the cell with a clue number,
+            // you could store that information in a separate state or modify your cell rendering logic.
+            // For example, you might add a property like: wordObj.id = idx + 1;
+          }
+        });
+  
+        setGridData(clearedGrid);
+      })
+      .catch((error) => {
+        console.error('Error fetching crossword puzzle:', error);
+      });
   }, []);
+  
+
+  const handleInputChange = (e, rowIndex, colIndex) => {
+    // Handle text field input changes
+    const value = e.target.value.toUpperCase(); // Ensure input is always capitalized
+    const newGridData = [...gridData];
+    newGridData[rowIndex][colIndex] = value; // Update the grid
+    setGridData(newGridData);
+  };
+
+  const renderGrid = () => {
+    return gridData.map((row, rowIndex) => (
+      <div key={rowIndex} className="crossword-row">
+        {row.map((cell, colIndex) => {
+          const isEmptyCell = cell === "."; // Check if the cell is blocked
+  
+          // Find all clues that start at this cell
+          const startingClues = clues.filter(
+            (clue) => clue.x === colIndex && clue.y === rowIndex
+          );
+  
+          // If there are starting clues, use the clue's id for the placeholder
+          const clueIdsPlaceholder = startingClues.map(clue => clue.id).join(',');
+  
+          // Apply the 'start-word' class if this is the starting cell of a word
+          const isStartOfWord = startingClues.length > 0;
+  
+          return (
+            <div key={colIndex} className="crossword-cell-wrapper">
+              <div className="cell-container">
+                {/* Show clue IDs in top-left if this is a starting cell */}
+                {isStartOfWord && (
+                  <span className="clue-id-overlay">{clueIdsPlaceholder}</span>
+                )}
+                <input
+                  className={`crossword-cell ${isEmptyCell ? 'locked' : ''} ${isStartOfWord ? 'start-word' : ''}`}
+                  type="text"
+                  maxLength="1"
+                  value={isEmptyCell ? '' : gridData[rowIndex][colIndex]}
+                  onChange={(e) => handleInputChange(e, rowIndex, colIndex)}
+                  disabled={isEmptyCell}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    ));
+  };
+  
+  
 
   if (loading) {
-    return <div>Loading clues...</div>;
+    return <div className="loading-message">Loading clues...</div>;
   }
 
   return (
-    <div>
-      <h1>Reddit Crossword Clues</h1>
-      <ul>
-        {clues.map((clue) => (
-          <li key={clue.id}>{clue.id} - 
-            <strong>{clue.clue}</strong> - Answer: {clue.answer}
-          </li>
-        ))}
-      </ul>
+    <div className="newsapi-container">
+      <div className="blank-field">
+        {/* Render 15x15 grid of text fields */}
+        {renderGrid()}
+      </div>
+      <div className="clues-container">
+        <h1>Reddit Crossword Clues</h1>
+        <ul>
+          {clues.map((clue) => (
+            <li key={clue.id} className="clue-item">
+              <span className="clue-number">{clue.id}</span>
+              <strong>{clue.clue}</strong> {clue.answer}
+              <button
+                onClick={() => handleShowHint(clue.id)}
+                style={{
+                  marginLeft: '15px',
+                  padding: '5px 10px',
+                  backgroundColor: '#4CAF50',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              >
+                Show Hint
+              </button>
+              {clueWithHint && clue.id === clueWithHint.id && (
+                <div
+                  style={{
+                    marginTop: '10px',
+                    fontSize: '14px',
+                    color: '#0073e6',
+                  }}
+                >
+                  Hint: <a href={clueWithHint.url} target="_blank" rel="noopener noreferrer">View Hint</a>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

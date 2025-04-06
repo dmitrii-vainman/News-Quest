@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Crossword from './pages/Crossword';
-import CrosswordPage from './pages/CrosswordPage';
 import Reddit from './pages/newsp/Reddit';
 import Hackernews from './pages/newsp/Hackernews';
 import NewsAPI from './pages/newsp/Newsapi';

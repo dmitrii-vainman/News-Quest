@@ -67,7 +67,7 @@ def generate_clue_for_word(headline):
         return None, None
 
 # Function to fetch headlines from the database
-def fetch_headlines_from_db(source, limit=8):
+def fetch_headlines_from_db(source, limit=12):
     conn = sqlite3.connect('../db/news.db')
     cursor = conn.cursor()
     

@@ -1,14 +1,24 @@
 /* Home.css */
-.home-page-container {
+body {
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+    background-image: url('../assets/cross-bbg.png'); /* Path to your background image */
+    background-size: cover; /* Ensure the image covers the entire page */
+    background-position: center center; /* Center the image */
+    background-attachment: fixed; /* Optional: Make the background fixed when scrolling */
+  }
+  
+  .home-page-container {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(to right, #283c86, #45a247); /* Gradient background */
-    color: white;
+    color: rgb(40, 35, 35);
     padding: 20px;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
   }
+  
+  
   
   .home-page-header {
     text-align: center;
@@ -18,12 +28,20 @@
   .main-title {
     font-size: 3rem;
     font-weight: bold;
-    color: #ffcc00; /* Accent color */
+    background-color: rgba(0, 0, 0, 0.6);  /* Semi-transparent background */
+    border: 2px solid #ffcc00;  /* Yellow border */
+    padding: 5px 10px;  /* Adds padding inside the background and border */
+    color: #ffcc00;  /* Text color */
+    border-radius: 5px; 
   }
   
   .sub-title {
     font-size: 1.2rem;
-    color: #d1d1d1;
+    background-color: rgba(0, 0, 0, 0.6);  /* Semi-transparent background */
+    border: 2px solid #ffcc00;  /* Yellow border */
+    padding: 5px 10px;  /* Adds padding inside the background and border */
+    color: white;  /* Text color */
+    border-radius: 5px; 
   }
   
   .intro-section {
