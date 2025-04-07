@@ -34,13 +34,13 @@ Install dependencies:
 cd client
 npm install
 npm run dev
-
+´´´
 
 run backend:
 ```bash
 npm install
 node server.js
-
+´´´
 
 
 
