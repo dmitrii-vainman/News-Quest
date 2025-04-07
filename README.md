@@ -30,12 +30,14 @@ uvicorn server/app.main:app --reload
 
 
 Install dependencies:
+```bash
 cd client
 npm install
 npm run dev
 
 
 run backend:
+```bash
 npm install
 node server.js
 
