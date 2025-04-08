@@ -23,25 +23,29 @@
 1. Install dependencies:
    ```bash
    pip install -r server/requirements.txt
+   
 Run the FastAPI server:
-bash
-Kopieren
-Bearbeiten
+cd server
 uvicorn server/app.main:app --reload
-Frontend (React)
+
+
 Install dependencies:
-bash
-Kopieren
-Bearbeiten
-cd client
-npm install
-Run the React app:
-bash
-Kopieren
-Bearbeiten
-npm start
+
+   ```bash
+   cd client
+   npm install
+   npm run dev
+   
+   
+   run backend:
+   
+   npm install
+   node server.js
+
+
+
+
 Technologies Used
 Frontend: React, JavaScript, CSS
 Backend: FastAPI, Python
-Puzzle Generation: crossword-puzzle-maker library
 Database: SQLite
