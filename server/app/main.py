@@ -292,6 +292,36 @@ class Headline(BaseModel):
     source: str
     url: str
 
+@app.get("/api/clue_with_headline/{clue_id}")
+def get_clue_with_headline(clue_id: int):
+    conn = sqlite3.connect("app/db/news.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT 
+            c.id, c.word, c.clue, c.source, c.headline_id,
+            h.title, h.url
+        FROM clues c
+        JOIN headlines h ON c.headline_id = h.id
+        WHERE c.id = ?
+    """, (clue_id,))
+
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Clue not found")
+
+    return {
+        "id": row[0],
+        "word": row[1],
+        "clue": row[2],
+        "source": row[3],
+        "headline_id": row[4],
+        "headline": row[5],
+        "headlineUrl": row[6]
+    }
+
 # Function to fetch clues based on source
 def fetch_clues_and_headline(source: str):
     conn = sqlite3.connect('app/db/news.db')

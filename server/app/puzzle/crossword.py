@@ -33,7 +33,7 @@ def generate_crossword(clues, grid_size=GRID_SIZE):
     placed_words = []
 
     random.shuffle(clues)
-    clues.sort(key=lambda x: -len(x["word"]))  # Longest first
+    clues.sort(key=lambda x: -len(x["word"])) 
 
     for index, entry in enumerate(clues):
         word = entry["word"]

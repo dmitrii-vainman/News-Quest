@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './NewsAPI.css'; // Import the CSS file for this component
+import './NewsAPI.css'; // Make sure your CSS file is updated as below
 
 const NewsAPI = () => {
   const [clues, setClues] = useState([]);
@@ -36,7 +36,7 @@ const NewsAPI = () => {
         );
   
         // For each placed word, fill in the first letter of the word at its starting cell
-        placedWords.forEach((wordObj, idx) => {
+        placedWords.forEach((wordObj) => {
           const { x, y, word } = wordObj;
           if (clearedGrid[x] && clearedGrid[x][y] !== undefined) {
             clearedGrid[x][y] = word[0]; // Keep only the first letter
@@ -51,37 +51,28 @@ const NewsAPI = () => {
   }, []);
 
   const handleShowHint = (clueId) => {
-    // Find the clue with the matching ID
-    const clue = clues.find(clue => clue.id === clueId);
-    
-    if (clue) {
-      const source = clue.source;
-  
-      // Fetch the headline and clues using the source of the clue
-      axios
-        .get(`http://127.0.0.1:8000/api/headline/${source}`)
-        .then((response) => {
-          const { headline, clues } = response.data;
-  
-          // Set the clue with the fetched headline and URL
-          setClueWithHint({
-            ...clue,
-            headline: headline.title,
-            headlineUrl: headline.url,
-          });
-        })
-        .catch((error) => {
-          console.error('Error fetching headline and clues:', error);
+    axios
+      .get(`http://127.0.0.1:8000/api/clue_with_headline/${clueId}`)
+      .then((response) => {
+        const { id, word, clue, source, headline, headlineUrl } = response.data;
+        setClueWithHint({
+          id,
+          word,
+          clue,
+          source,
+          headline,
+          headlineUrl,
         });
-    }
+      })
+      .catch((error) => {
+        console.error('Error fetching clue with headline:', error);
+      });
   };
   
-
   const handleInputChange = (e, rowIndex, colIndex) => {
-    // Handle text field input changes
-    const value = e.target.value.toUpperCase(); // Ensure input is always capitalized
+    const value = e.target.value.toUpperCase();
     const newGridData = [...gridData];
-    newGridData[rowIndex][colIndex] = value; // Update the grid
+    newGridData[rowIndex][colIndex] = value;
     setGridData(newGridData);
   };
 
@@ -89,28 +80,32 @@ const NewsAPI = () => {
     return gridData.map((row, rowIndex) => (
       <div key={rowIndex} className="crossword-row">
         {row.map((cell, colIndex) => {
-          const isEmptyCell = cell === "."; // Check if the cell is blocked
+          const isEmptyCell = cell === ".";
+          // Find all clues that start at this cell
           const startingClues = clues.filter(
             (clue) => clue.x === colIndex && clue.y === rowIndex
           );
-  
+          // Log the clue IDs for debugging
+          console.log(`Cell [${rowIndex}, ${colIndex}]:`, startingClues.map(c => c.id));
+
           const clueIdsPlaceholder = startingClues.map(clue => clue.id).join(',');
           const isStartOfWord = startingClues.length > 0;
-  
+
           return (
             <div key={colIndex} className="crossword-cell-wrapper">
-              <div className="cell-container">
+              <div className="inputContainer">
                 {isStartOfWord && (
-                  <span className="clue-id-overlay">{clueIdsPlaceholder}</span>
+                  <div className="soCalledPlaceholder">{clueIdsPlaceholder}</div>
                 )}
-                <input
-                  className={`crossword-cell ${isEmptyCell ? 'locked' : ''} ${isStartOfWord ? 'start-word' : ''}`}
-                  type="text"
-                  maxLength="1"
-                  value={isEmptyCell ? '' : gridData[rowIndex][colIndex]}
-                  onChange={(e) => handleInputChange(e, rowIndex, colIndex)}
-                  disabled={isEmptyCell}
-                />
+<input
+  className={`crossword-cell ${isEmptyCell ? 'locked' : ''}`}
+  type="text"
+  maxLength="1"
+  value={isEmptyCell ? '' : gridData[rowIndex][colIndex]}
+  onChange={(e) => handleInputChange(e, rowIndex, colIndex)}
+  disabled={isEmptyCell}
+/>
+
               </div>
             </div>
           );
@@ -130,7 +125,7 @@ const NewsAPI = () => {
       </div>
       <div className="clues-container">
         <h1>NewsAPI Crossword Clues</h1>
-        <ul>
+        <ol>
           {clues.map((clue) => (
             <li key={clue.id} className="clue-item">
               <span className="clue-number">{clue.id}</span>
@@ -164,7 +159,7 @@ const NewsAPI = () => {
               )}
             </li>
           ))}
-        </ul>
+        </ol>
       </div>
     </div>
   );
