@@ -1,58 +1,77 @@
-# News-Quest
 
-**News-Quest** is a project that converts the latest news into crossword puzzles. It sources news articles from platforms like Reddit and Hacker News, processes them into clues, and generates puzzles for users to solve. This project showcases a variety of skills learned during a one-year bootcamp, including API integration, puzzle generation, and deployment.
+# 🧩 News-Quest
 
-## Project Scope
+**News-Quest** ist ein Projekt, das aktuelle Nachrichten in Kreuzworträtsel verwandelt. Es bezieht Artikel von Plattformen wie Reddit und Hacker News, verarbeitet sie zu Hinweisen und erstellt daraus interaktive Rätsel. Dieses Projekt demonstriert verschiedene Fähigkeiten, die während eines einjährigen Bootcamps erlernt wurden – darunter API-Integration, Rätselgenerierung und Deployment.
 
-1. **News Fetching**:
-   - The application fetches the latest news articles from sources like Reddit and Hacker News.
+---
 
-2. **Crossword Puzzle Generation**:
-   - The fetched news articles are processed into crossword clues and answers.
-   - The crossword puzzles are generated using the `crossword-puzzle-maker` library.
+## 🚀 Projektumfang
 
-3. **Frontend**:
-   - The frontend is built with React, and it allows users to view headlines, solve crosswords, and interact with the generated puzzles.
+1. **News Fetching**
+   - Holt aktuelle Nachrichtenartikel von Reddit und Hacker News über deren APIs.
 
-4. **Backend**:
-   - The backend uses FastAPI to serve the API for fetching news articles and serving crossword puzzles.
+2. **Kreuzworträtsel-Generierung**
+   - Verarbeitet die Artikelinhalte zu Fragen und Antworten.
+   - Nutzt die Bibliothek `crossword-puzzle-maker` zur Rätselerstellung.
 
-## How to Run
+3. **Frontend**
+   - Erstellt mit React.
+   - Ermöglicht das Durchstöbern der Headlines sowie das Lösen der generierten Kreuzworträtsel.
 
-You will need to acquire API-credentials and add them to a .env in the main app folder like this:
+4. **Backend**
+   - FastAPI stellt eine Schnittstelle bereit, um News abzurufen und Rätsel bereitzustellen.
 
-REDDIT_CLIENT_ID= XXX
-REDDIT_CLIENT_SECRET= XXX
-newsapi_key= XXX
-OPENAI_API_KEY= XXX
+---
 
-### Backend (FastAPI)
-1. Install dependencies:
-   ```bash
-   pip install -r server/requirements.txt
-   
-Run the FastAPI server:
+## 🛠️ Technologien
+
+- **Frontend:** React, JavaScript, CSS  
+- **Backend:** FastAPI, Python  
+- **Datenbank:** SQLite  
+
+---
+
+## ▶️ Projekt lokal ausführen
+
+### 🔐 API-Zugangsdaten
+Lege eine `.env`-Datei im Hauptverzeichnis der App an und füge deine Schlüssel hinzu:
+
+```
+REDDIT_CLIENT_ID=XXX
+REDDIT_CLIENT_SECRET=XXX
+newsapi_key=XXX
+OPENAI_API_KEY=XXX
+```
+
+### 🧠 Backend (FastAPI)
+
+1. Abhängigkeiten installieren:
+
+```
+pip install -r server/requirements.txt
+```
+
+2. Server starten:
+
+```
 cd server
-uvicorn server/app.main:app --reload
+uvicorn app.main:app --reload
+```
 
+### 💻 Frontend (React)
 
-Install dependencies:
+1. Abhängigkeiten installieren und Dev-Server starten:
 
-   ```bash
-   cd client
-   npm install
-   npm run dev
-   
-   
-   run backend:
-   
-   npm install
-   node server.js
+```
+cd client
+npm install
+npm run dev
+```
 
+---
 
+## 📌 Hinweise
 
-###
-Technologies Used
-Frontend: React, JavaScript, CSS
-Backend: FastAPI, Python
-Database: SQLite
+- Stelle sicher, dass sowohl Backend als auch Frontend parallel laufen.
+- Weitere Umgebungsvariablen können je nach API-Zugriff erforderlich sein.
+
