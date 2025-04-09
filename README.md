@@ -19,6 +19,13 @@
 
 ## How to Run
 
+You will need to acquire API-credentials and add them to a .env in the main app folder like this:
+
+REDDIT_CLIENT_ID= XXX
+REDDIT_CLIENT_SECRET= XXX
+newsapi_key= XXX
+OPENAI_API_KEY= XXX
+
 ### Backend (FastAPI)
 1. Install dependencies:
    ```bash
@@ -44,7 +51,7 @@ Install dependencies:
 
 
 
-
+###
 Technologies Used
 Frontend: React, JavaScript, CSS
 Backend: FastAPI, Python
