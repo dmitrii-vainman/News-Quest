@@ -5,6 +5,10 @@
 
 ---
 
+![Mein Logo](client/src/assets/img1.png)
+
+
+
 ## 🚀 Projektumfang
 
 1. **News Fetching**
