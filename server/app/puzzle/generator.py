@@ -52,7 +52,7 @@ def generate_clue_for_word(headline):
                     'Example response: { "word": "Bitcoin", "clue": "An expensive non-physical currency." }'
                 )
             }],
-            max_tokens=100
+            max_tokens=50
         )
 
         response_text = response.choices[0].message.content.strip()

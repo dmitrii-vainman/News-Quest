@@ -40,9 +40,6 @@ const Reddit = () => {
           const { x, y, word } = wordObj;
           if (clearedGrid[x] && clearedGrid[x][y] !== undefined) {
             clearedGrid[x][y] = word[0]; // Keep only the first letter
-            // Optionally, if you want to annotate the cell with a clue number,
-            // you could store that information in a separate state or modify your cell rendering logic.
-            // For example, you might add a property like: wordObj.id = idx + 1;
           }
         });
   
@@ -52,6 +49,26 @@ const Reddit = () => {
         console.error('Error fetching crossword puzzle:', error);
       });
   }, []);
+
+  const handleShowHint = (clueId) => {
+    axios
+      .get(`http://127.0.0.1:8000/api/clue_with_headline/${clueId}`)
+      .then((response) => {
+        const { id, word, clue, source, headline, headlineUrl } = response.data;
+        setClueWithHint({
+          id,
+          word,
+          clue,
+          source,
+          headline,
+          headlineUrl,
+        });
+      })
+      .catch((error) => {
+        console.error('Error fetching clue with headline:', error);
+      });
+  };
+  
   
 
   const handleInputChange = (e, rowIndex, colIndex) => {
@@ -67,27 +84,23 @@ const Reddit = () => {
       <div key={rowIndex} className="crossword-row">
         {row.map((cell, colIndex) => {
           const isEmptyCell = cell === "."; // Check if the cell is blocked
-  
-          // Find all clues that start at this cell
           const startingClues = clues.filter(
             (clue) => clue.x === colIndex && clue.y === rowIndex
           );
   
-          // If there are starting clues, use the clue's id for the placeholder
           const clueIdsPlaceholder = startingClues.map(clue => clue.id).join(',');
-  
-          // Apply the 'start-word' class if this is the starting cell of a word
           const isStartOfWord = startingClues.length > 0;
   
           return (
             <div key={colIndex} className="crossword-cell-wrapper">
-              <div className="cell-container">
-                {/* Show clue IDs in top-left if this is a starting cell */}
+              <div className="crossword-cell-container">
                 {isStartOfWord && (
-                  <span className="clue-id-overlay">{clueIdsPlaceholder}</span>
+                  <span className="clue-id-overlay">
+                    {clueIdsPlaceholder}
+                  </span>
                 )}
                 <input
-                  className={`crossword-cell ${isEmptyCell ? 'locked' : ''} ${isStartOfWord ? 'start-word' : ''}`}
+                  className={`crossword-cell ${isEmptyCell ? 'locked' : ''}`}
                   type="text"
                   maxLength="1"
                   value={isEmptyCell ? '' : gridData[rowIndex][colIndex]}
@@ -101,17 +114,14 @@ const Reddit = () => {
       </div>
     ));
   };
-  
-  
 
   if (loading) {
     return <div className="loading-message">Loading clues...</div>;
   }
 
   return (
-    <div className="newsapi-container">
+    <div className="Reddit-container">
       <div className="blank-field">
-        {/* Render 15x15 grid of text fields */}
         {renderGrid()}
       </div>
       <div className="clues-container">
@@ -143,7 +153,9 @@ const Reddit = () => {
                     color: '#0073e6',
                   }}
                 >
-                  Hint: <a href={clueWithHint.url} target="_blank" rel="noopener noreferrer">View Hint</a>
+                  Hint: <a href={clueWithHint.headlineUrl} target="_blank" rel="noopener noreferrer">
+                    {clueWithHint.headline}
+                  </a>
                 </div>
               )}
             </li>
